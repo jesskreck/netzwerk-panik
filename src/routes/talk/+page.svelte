@@ -8,8 +8,8 @@
 
 	// Ref für den Container
 	let chatContainer: HTMLElement;
-	let latestMessageRef: HTMLElement;
-
+	let latestMessageRef = $state<HTMLElement | null>(null);
+		
 	// Funktion zum Scrollen zur neuesten Nachricht
 	function scrollToLatest() {
 		if (latestMessageRef) {

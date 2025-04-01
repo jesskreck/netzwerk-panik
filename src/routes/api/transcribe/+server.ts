@@ -1,7 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { OPENAI_API_KEY } from '$env/static/private';
 import OpenAI from 'openai';
-import { TRANSCRIBE_PROMPT } from '$lib/prompts.js';
 
 /**
  * Haupt-Endpunkt für die Transkription von Audiodateien
