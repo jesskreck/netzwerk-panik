@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { formatTime } from '$lib/utils/audioUtils';
-	import AudioVisualizer from './AudioVisualizer.svelte';
+	import AudioVisualizer from '../../layout/AudioVisualizer.svelte';
 
 	type RecordingControlsProps = {
 		isRecording: boolean;

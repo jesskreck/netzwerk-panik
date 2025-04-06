@@ -4,6 +4,6 @@
 </script>
 
 <ChatUi
-	heading={HEADINGS.network} 
-	defaultMessages={DEFAULT_MESSAGES.network} 
+	heading={HEADINGS.themen} 
+	defaultMessages={DEFAULT_MESSAGES.goals} 
 />

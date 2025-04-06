@@ -7,8 +7,7 @@
 	let { children } = $props();
 
 	onMount(() => {
-		// Initialisiere Chat im "network" Modus
-		initChat(PROMPTS.network);
+		initChat(PROMPTS.themen);
 	});
 </script>
 

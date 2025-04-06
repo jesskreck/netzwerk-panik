@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import Heading from '../components/Heading.svelte';
+	import Heading from '../components/layout/Heading.svelte';
 	import animation from '$lib/assets/animation.gif';
 
 	function navigateForward() {

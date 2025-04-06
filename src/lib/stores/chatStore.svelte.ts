@@ -1,13 +1,10 @@
-import { SYSTEM_PROMPT } from '$lib/prompts';
 import { type Message } from '$lib/types/chat';
 import { v4 as uuidv4 } from 'uuid'; // UUID-Bibliothek hinzufügen
 
 // Wir verwenden Nested State für mehr Flexibilität
 const store = $state({
   messages: [] as Message[],
-  chatHistory: [
-    { role: 'system', content: SYSTEM_PROMPT }
-  ] as Array<{ role: string, content: string }>
+  chatHistory: [] as Array<{ role: string, content: string }>
 });
 
 const MAX_TOKENS_ESTIMATE = 4000; // Konservative Schätzung für gpt-4o-mini

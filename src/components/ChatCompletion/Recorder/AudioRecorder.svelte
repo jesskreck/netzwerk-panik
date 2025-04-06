@@ -1,12 +1,10 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import TranscriptToggle from './TranscriptToggle.svelte';
-	import AudioVisualizer from './AudioVisualizer.svelte';
 	import RecordingControls from './RecordingControls.svelte';
 	import { transcribeAudio, sendToGPT, createSummary } from '$lib/services/audioService';
 	import { processGptStream } from '$lib/services/messageService';
-	import { store, addMessage, trimChatHistory } from '$lib/stores/chatStore.svelte';
-	import { checkMicrophonePermission, formatTime } from '$lib/utils/audioUtils';
+	import { store, trimChatHistory } from '$lib/stores/chatStore.svelte';
+	import { checkMicrophonePermission,  } from '$lib/utils/audioUtils';
 	import type { RecordingState } from '$lib/types/chat';
 	import { v4 as uuidv4 } from 'uuid';
 
