@@ -2,20 +2,53 @@
 
 Eine Svelte 5 Anwendung, die dir hilft, Nervosität vor Networking-Events abzubauen.
 
+**Demo**: [https://panik.jesskreck.de/](https://panik.jesskreck.de/)
+
 ## Features
 
 - 🎙️ **Audio-basierte Eingabe**: Sprich deine Sorgen ein und lass die KI dir helfen, sie zu sortieren
-- 🤖 **KI-Coaching**: Erhält maßgeschneiderte Motivation und praktische Tipps
+- 🤖 **KI-Coaching**: Erhalte maßgeschneiderte Motivation und praktische Tipps
 - 💬 **Vordefinierte Prompts**: Schnellauswahl für typische Sorgen, wenn du nicht selbst sprechen möchtest
+- 🎯 **Event-Ziele**: Definiere und konkretisiere deine Ziele für das Networking-Event
+- 💡 **Gesprächsthemen**: Erarbeite passende Gesprächsthemen und Einstiege
 
-## Technologien
 
-- [Svelte 5](https://svelte.dev) mit den neuen Runes-Features für reaktiven State
-- [SvelteKit 2](https://kit.svelte.dev) für Routing und Serverless-Funktionen
-- [TailwindCSS 4](https://tailwindcss.com) und [DaisyUI](https://daisyui.com) für das UI
-- [OpenAI API](https://openai.com) für Transkription und KI-Antworten
+## Technologie-Stack
 
-## Einrichtung
+- **Frontend**: Svelte 5 mit Runes für reaktiven State-Management
+- **Backend**: SvelteKit 2 (Server-Komponenten, API-Routen, SSR)
+- **Styling**: TailwindCSS 4 mit DaisyUI als Komponenten-Bibliothek
+- **APIs**: 
+  - OpenAI für Audio-Transkription (`gpt-4o-mini-transcribe`)
+  - Chat-Completion via `gpt-4o-mini` für Antwortgenerierung
+- **Deployment**: Netlify mit edge-optimierten SvelteKit-Adapter
+- **Build-Tools**: Vite für schnelle Entwicklungsumgebung
+- **Typensicherheit**: TypeScript für statische Typprüfung
+
+
+## Projektstruktur
+
+```
+netzwerk-panik/
+├── src/
+│   ├── components/       # Wiederverwendbare UI-Komponenten
+│   │   ├── ChatCompletion/  # Chat-bezogene Komponenten
+│   │   └── layout/       # Layout-Komponenten
+│   ├── lib/
+│   │   ├── assets/       # Bilder und andere Assets
+│   │   ├── services/     # API-Dienste und Business-Logik
+│   │   ├── stores/       # Svelte Stores für Zustandsverwaltung
+│   │   ├── types/        # TypeScript-Typdefinitionen
+│   │   └── utils/        # Hilfsfunktionen
+│   └── routes/
+│       ├── api/          # API-Endpunkte (OpenAI)
+│       ├── eventziele/   # Zielsetzungsseite
+│       ├── talk/         # Hauptchat-Seite
+│       └── themen/       # Gesprächsthemen-Seite
+└── static/              # Statische Assets wie Favicon
+```
+
+### Installation
 
 1. Repo klonen:
    ```bash
@@ -39,36 +72,20 @@ Eine Svelte 5 Anwendung, die dir hilft, Nervosität vor Networking-Events abzuba
    npm run dev
    ```
 
-## Deployment auf Netlify
+5. Öffne deinen Browser unter [http://localhost:5173](http://localhost:5173)
 
-Diese Anwendung ist für das Deployment auf Netlify optimiert:
+## Verwendung der App
 
-1. Stelle sicher, dass `@sveltejs/adapter-netlify` korrekt konfiguriert ist (siehe `svelte.config.js`)
+1. **Startseite**: Hier findest du eine kurze Einführung und kannst mit "Pep-Talk" starten
+2. **Chat-Modi**: Die App bietet drei verschiedene Gesprächsmodi:
+   - **Talk**: Hauptmodus für Pep-Talks bei akuter Nervosität
+   - **Eventziele**: Definiere deine Ziele für das Event
+   - **Themen**: Erarbeite Gesprächsthemen und -einstiege
 
-2. Überprüfe die Netlify-Konfiguration in `netlify.toml`
+3. **Audio-Aufnahme**: Klicke auf das Mikrofon-Icon 🎙️ am unteren Bildschirmrand, um deine Sorgen einzusprechen
+4. **Vorgefertigte Prompts**: Alternativ kannst du die vordefinierten Nachrichtenvorschläge verwenden
+5. **Antworten**: Die KI analysiert deine Eingabe und gibt personalisierte Ratschläge
 
-3. Erstelle eine `_redirects`-Datei im `static`-Verzeichnis mit folgendem Inhalt:
-   ```
-   /* /index.html 200
-   ```
-
-4. Baue die Anwendung:
-   ```bash
-   npm run build
-   ```
-
-5. Deploye auf Netlify durch:
-   - Verbinden deines GitHub-Repos in Netlify, oder
-   - Manuelles Hochladen des `build`-Verzeichnisses
-
-6. Konfiguriere die Umgebungsvariablen (besonders den OPENAI_API_KEY) in den Netlify-Einstellungen
-
-## Projektstruktur
-
-- `/src/components` - Wiederverwendbare UI-Komponenten
-- `/src/lib` - Services, Stores und gemeinsam genutzte Utilities
-- `/src/routes` - Seitenstruktur und Routing
-- `/static` - Statische Assets und Dateien
 
 ## Lizenz
 
