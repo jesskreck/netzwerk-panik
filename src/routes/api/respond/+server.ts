@@ -1,73 +1,104 @@
 import { OPENAI_API_KEY } from '$env/static/private';
 import OpenAI from 'openai';
+import { eventGoalTools } from '$lib/types/eventGoalTools';
+import { handleGoalCompletion } from '$lib/stores/goalStore.svelte';
 
 export async function POST({ request }) {
 	try {
-		const body = await request.json();
-		const { messages } = body;
-
-		if (!messages || !Array.isArray(messages) || messages.length === 0) {
-			return new Response(JSON.stringify({ error: 'Keine gültigen Nachrichten übermittelt' }), { 
-				status: 400, 
-				headers: { 'Content-Type': 'application/json' }
-			});
-		}
-
-		// OpenAI SDK initialisieren
-		const openai = new OpenAI({
-			apiKey: OPENAI_API_KEY
-		});
-
-		// Chat Completion API mit SDK aufrufen und streamen
-		const stream = await openai.chat.completions.create({
-			model: 'gpt-4o-mini',
-			messages: messages,
-			stream: true,
-		});
-
-		// Stream-Antwort vorbereiten
-		const encoder = new TextEncoder();
-		const readable = new ReadableStream({
-			async start(controller) {
+	  const body = await request.json();
+	  const { messages } = body;
+  
+	  const openai = new OpenAI({
+		apiKey: OPENAI_API_KEY
+	  });
+  
+	  const stream = await openai.chat.completions.create({
+		model: 'gpt-4o-mini',
+		messages: messages,
+		tools: eventGoalTools,
+		tool_choice: 'auto',
+		stream: true,
+	  });
+  
+	  const encoder = new TextEncoder();
+	  const readable = new ReadableStream({
+		async start(controller) {
+		  let fullResponse = '';
+		  let completeToolCallArguments = '';
+		  let toolCallResult: { 
+			goals?: string[], 
+			isComplete?: boolean 
+		  } = {};
+  
+		  try {
+			for await (const chunk of stream) {
+			  const content = chunk.choices[0]?.delta?.content || '';
+			  const toolCall = chunk.choices[0]?.delta?.tool_calls?.[0];
+  
+			  fullResponse += content;
+  
+			  // Sammle Tool Call Argumente über alle Chunks
+			  if (toolCall?.function?.arguments) {
+				console.log('Partieller Argument-Chunk:', toolCall.function.arguments);
+				completeToolCallArguments += toolCall.function.arguments;
+			  }
+  
+			  // Prüfe auf vollständigen Tool Call
+			  if (chunk.choices[0]?.finish_reason === 'tool_calls') {
 				try {
-					let fullResponse = '';
-					
-					// Chunks durchlaufen
-					for await (const chunk of stream) {
-						const content = chunk.choices[0]?.delta?.content || '';
-						fullResponse += content;
-						
-						// Chunk an den Client senden
-						const data = encoder.encode(JSON.stringify({ 
-							chunk: content,
-							fullText: fullResponse 
-						}) + '\n');
-						
-						controller.enqueue(data);
-					}
-					
-					// Stream beenden
-					controller.close();
-				} catch (error) {
-					console.error('Stream-Fehler:', error);
-					controller.error(error);
+				  console.log('Vollständige Argumentzeichenkette:', completeToolCallArguments);
+				  const parsedArgs = JSON.parse(completeToolCallArguments);
+				  
+				  toolCallResult = {
+					goals: parsedArgs.goals,
+					isComplete: parsedArgs.isComplete
+				  };
+  
+				  console.log('Geparste Argumente:', toolCallResult);
+				} catch (parseError) {
+				  console.error('Fehler beim finalen Parsen:', parseError);
+				  console.error('Rohe Argumentzeichenkette:', completeToolCallArguments);
 				}
+			  }
+  
+			  const data = encoder.encode(JSON.stringify({ 
+				chunk: content,
+				fullText: fullResponse,
+				toolCallResult
+			  }) + '\n');
+			  
+			  controller.enqueue(data);
 			}
-		});
-
-		// Stream zurückgeben
-		return new Response(readable, {
-			headers: {
-				'Content-Type': 'text/event-stream',
-				'Cache-Control': 'no-cache',
-				'Connection': 'keep-alive'
+  
+			// Verarbeite Tool Call Ergebnis
+			if (toolCallResult.goals && toolCallResult.isComplete !== undefined) {
+			  handleGoalCompletion(
+				toolCallResult.goals, 
+				toolCallResult.isComplete
+			  );
+			  console.log("Ziele:", toolCallResult.goals);
 			}
-		});
+			
+			controller.close();
+		  } catch (error) {
+			console.error('Stream-Fehler:', error);
+			controller.error(error);
+		  }
+		}
+	  });
+  
+	  return new Response(readable, {
+		headers: {
+		  'Content-Type': 'text/event-stream',
+		  'Cache-Control': 'no-cache',
+		  'Connection': 'keep-alive'
+		}
+	  });
 	} catch (error) {
-		console.error('Serverfehler bei Chat-Anfrage:', error);
-		return new Response(JSON.stringify({ error: 'Serverfehler bei der Verarbeitung' }), { 
-			status: 500, 
-			headers: { 'Content-Type': 'application/json' }
-		});
+	  console.error('Serverfehler bei Chat-Anfrage:', error);
+	  return new Response(JSON.stringify({ error: 'Serverfehler bei der Verarbeitung' }), { 
+		status: 500, 
+		headers: { 'Content-Type': 'application/json' }
+	  });
 	}
-}
+  }
