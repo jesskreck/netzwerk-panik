@@ -5,17 +5,22 @@ const goalStore = $state({
   isComplete: false
 });
 
+
 function addGoal(goal: string) {
   if (goal.trim()) {
     goalStore.goals.push(goal.trim());
   }
 }
 
-function handleGoalCompletion(goals: string[], isComplete: boolean) {
-  goalStore.goals = goals;
-  goalStore.isComplete = isComplete;
+// für /api/respond/+server.ts: Storeupdate wenn tool call von API ausgelöst wird (function calling) 
+function handleGoalCompletion(goals?: string[], completed?: boolean) {
+  if (goals) {
+    goalStore.goals = goals;
+  }
+  if (completed !== undefined) {
+    goalStore.isComplete = completed;
+  }
 }
-
 function proceedToNextStage() {
   if (goalStore.isComplete) {
     goto('/themen');
@@ -23,8 +28,8 @@ function proceedToNextStage() {
 }
 
 export { 
-  goalStore, 
+  goalStore,
   addGoal, 
-  handleGoalCompletion,
+  handleGoalCompletion, 
   proceedToNextStage 
 };

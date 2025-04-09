@@ -39,14 +39,12 @@ export async function POST({ request }) {
   
 			  // Sammle Tool Call Argumente über alle Chunks
 			  if (toolCall?.function?.arguments) {
-				console.log('Partieller Argument-Chunk:', toolCall.function.arguments);
 				completeToolCallArguments += toolCall.function.arguments;
 			  }
   
 			  // Prüfe auf vollständigen Tool Call
 			  if (chunk.choices[0]?.finish_reason === 'tool_calls') {
 				try {
-				  console.log('Vollständige Argumentzeichenkette:', completeToolCallArguments);
 				  const parsedArgs = JSON.parse(completeToolCallArguments);
 				  
 				  toolCallResult = {
@@ -54,7 +52,9 @@ export async function POST({ request }) {
 					isComplete: parsedArgs.isComplete
 				  };
   
-				  console.log('Geparste Argumente:', toolCallResult);
+				  console.log('Geparste Argumente als toolCallResult:', toolCallResult);
+
+				
 				} catch (parseError) {
 				  console.error('Fehler beim finalen Parsen:', parseError);
 				  console.error('Rohe Argumentzeichenkette:', completeToolCallArguments);
@@ -68,15 +68,6 @@ export async function POST({ request }) {
 			  }) + '\n');
 			  
 			  controller.enqueue(data);
-			}
-  
-			// Verarbeite Tool Call Ergebnis
-			if (toolCallResult.goals && toolCallResult.isComplete !== undefined) {
-			  handleGoalCompletion(
-				toolCallResult.goals, 
-				toolCallResult.isComplete
-			  );
-			  console.log("Ziele:", toolCallResult.goals);
 			}
 			
 			controller.close();

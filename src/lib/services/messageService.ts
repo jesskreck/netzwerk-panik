@@ -1,4 +1,5 @@
 import { store, trimChatHistory } from '$lib/stores/chatStore.svelte';
+import { handleGoalCompletion } from '$lib/stores/goalStore.svelte';
 import { sendToGPT, createSummary } from './audioService';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -48,10 +49,20 @@ export async function processGptStream(stream: ReadableStream<Uint8Array>, msgId
       for (const line of lines) {
         try {
           const data = JSON.parse(line);
-          
+
           // Text zur Antwort hinzufügen
           currentResponse = data.fullText;
-          
+
+          // Wenn toolCallResult im Stream vorhanden ist, verarbeite es
+          if (data.toolCallResult && Object.keys(data.toolCallResult).length > 0) {
+            console.log('Tool call result empfangen:', data.toolCallResult);
+            // Hier den goalStore aktualisieren
+            handleGoalCompletion(
+              data.toolCallResult.goals,
+              data.toolCallResult.isComplete
+            );
+          }
+
           // Message im Store aktualisieren
           const messageIndex = store.messages.findIndex(m => m.id === msgId);
           if (messageIndex !== -1) {
@@ -68,9 +79,9 @@ export async function processGptStream(stream: ReadableStream<Uint8Array>, msgId
     // Speichere das Ergebnis in der Chat-Historie
     const messageIndex = store.messages.findIndex(m => m.id === msgId);
     if (messageIndex !== -1) {
-      store.chatHistory.push({ 
-        role: 'assistant', 
-        content: store.messages[messageIndex].response 
+      store.chatHistory.push({
+        role: 'assistant',
+        content: store.messages[messageIndex].response
       });
     }
   }
